@@ -160,6 +160,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 						isDisabled={disabled || !hasYear}
 						isClearable
 						placeholder="—"
+						menuPosition="fixed"
 					/>
 				</div>
 
@@ -173,6 +174,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 						isDisabled={disabled || !hasMonth}
 						isClearable
 						placeholder="—"
+						menuPosition="fixed"
 					/>
 				</div>
 
@@ -185,6 +187,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 						options={ERA_OPTIONS}
 						isDisabled={disabled || !hasYear}
 						placeholder="—"
+						menuPosition="fixed"
 					/>
 				</div>
 
