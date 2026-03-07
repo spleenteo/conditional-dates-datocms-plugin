@@ -1,5 +1,5 @@
 import { type RenderFieldExtensionCtx } from "datocms-plugin-sdk";
-import { Canvas, FormLabel, TextInput, SelectInput, SwitchInput } from "datocms-react-ui";
+import { Canvas, FormLabel, TextInput, SwitchInput } from "datocms-react-ui";
 import { get } from "../utils/get";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import s from "./styles.module.css";
@@ -16,26 +16,9 @@ type Props = {
 	ctx: RenderFieldExtensionCtx;
 };
 
-type Option = { label: string; value: string };
-
-const MONTH_OPTIONS: Option[] = [
-	{ label: "January", value: "1" },
-	{ label: "February", value: "2" },
-	{ label: "March", value: "3" },
-	{ label: "April", value: "4" },
-	{ label: "May", value: "5" },
-	{ label: "June", value: "6" },
-	{ label: "July", value: "7" },
-	{ label: "August", value: "8" },
-	{ label: "September", value: "9" },
-	{ label: "October", value: "10" },
-	{ label: "November", value: "11" },
-	{ label: "December", value: "12" },
-];
-
-const ERA_OPTIONS: Option[] = [
-	{ label: "A.D.", value: "AD" },
-	{ label: "B.C.", value: "BC" },
+const MONTHS = [
+	"January", "February", "March", "April", "May", "June",
+	"July", "August", "September", "October", "November", "December",
 ];
 
 const EMPTY_VALUE: DateValue = {
@@ -64,11 +47,6 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 	const disabled = ctx.disabled;
 
 	const maxDays = hasYear && hasMonth ? getDaysInMonth(month, year) : 31;
-
-	const dayOptions: Option[] = Array.from({ length: maxDays }, (_, i) => ({
-		label: String(i + 1),
-		value: String(i + 1),
-	}));
 
 	function save(next: DateValue) {
 		if (next.year == null && next.month == null && next.day == null && next.era == null && next.circa == null) {
@@ -102,13 +80,14 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 		save(next);
 	};
 
-	const handleMonthChange = (option: Option | null) => {
-		if (!option) {
+	const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const raw = e.target.value;
+		if (raw === "") {
 			save({ ...value, month: null, day: null });
 			return;
 		}
 
-		const newMonth = parseInt(option.value, 10);
+		const newMonth = parseInt(raw, 10);
 		const next = { ...value, month: newMonth };
 
 		if (day !== null && year !== null) {
@@ -119,14 +98,13 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 		save(next);
 	};
 
-	const handleDayChange = (option: Option | null) => {
-		save({ ...value, day: option ? parseInt(option.value, 10) : null });
+	const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const raw = e.target.value;
+		save({ ...value, day: raw === "" ? null : parseInt(raw, 10) });
 	};
 
-	const handleEraChange = (option: Option | null) => {
-		if (option) {
-			save({ ...value, era: option.value as "AD" | "BC" });
-		}
+	const handleEraChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		save({ ...value, era: e.target.value as "AD" | "BC" });
 	};
 
 	const handleCircaChange = (newValue: boolean) => {
@@ -152,43 +130,48 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 
 				<div className={s.field}>
 					<FormLabel htmlFor="month">Month</FormLabel>
-					<SelectInput
+					<select
 						id="month"
-						value={month != null ? MONTH_OPTIONS.find((o) => o.value === String(month)) ?? null : null}
+						value={month ?? ""}
 						onChange={handleMonthChange}
-						options={MONTH_OPTIONS}
-						isDisabled={disabled || !hasYear}
-						isClearable
-						placeholder="—"
-						menuPortalTarget={document.body}
-					/>
+						disabled={disabled || !hasYear}
+						className={s.select}
+					>
+						<option value="">—</option>
+						{MONTHS.map((name, i) => (
+							<option key={i + 1} value={i + 1}>{name}</option>
+						))}
+					</select>
 				</div>
 
 				<div className={s.fieldSmall}>
 					<FormLabel htmlFor="day">Day</FormLabel>
-					<SelectInput
+					<select
 						id="day"
-						value={day != null ? dayOptions.find((o) => o.value === String(day)) ?? null : null}
+						value={day ?? ""}
 						onChange={handleDayChange}
-						options={dayOptions}
-						isDisabled={disabled || !hasMonth}
-						isClearable
-						placeholder="—"
-						menuPortalTarget={document.body}
-					/>
+						disabled={disabled || !hasMonth}
+						className={s.select}
+					>
+						<option value="">—</option>
+						{Array.from({ length: maxDays }, (_, i) => (
+							<option key={i + 1} value={i + 1}>{i + 1}</option>
+						))}
+					</select>
 				</div>
 
 				<div className={s.fieldSmall}>
 					<FormLabel htmlFor="era">Era</FormLabel>
-					<SelectInput
+					<select
 						id="era"
-						value={era != null ? ERA_OPTIONS.find((o) => o.value === era) ?? ERA_OPTIONS[0] : ERA_OPTIONS[0]}
+						value={era ?? "AD"}
 						onChange={handleEraChange}
-						options={ERA_OPTIONS}
-						isDisabled={disabled || !hasYear}
-						placeholder="—"
-						menuPortalTarget={document.body}
-					/>
+						disabled={disabled || !hasYear}
+						className={s.select}
+					>
+						<option value="AD">A.D.</option>
+						<option value="BC">B.C.</option>
+					</select>
 				</div>
 
 				<div className={s.fieldCirca}>
