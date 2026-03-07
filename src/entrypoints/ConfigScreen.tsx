@@ -28,7 +28,7 @@ export default function ConfigScreen({ ctx }: Props) {
   "year": 1492,
   "month": 10,
   "day": 12,
-  "era": "AD",
+  "era": "CE",
   "circa": false
 }`}</pre>
         <p>

@@ -8,7 +8,7 @@ type DateValue = {
 	year: number | null;
 	month: number | null;
 	day: number | null;
-	era: "AD" | "BC" | null;
+	era: "CE" | "BCE" | null;
 	circa: boolean | null;
 };
 
@@ -68,7 +68,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 		const next = { ...value, year: parsed };
 
 		if (!hasYear) {
-			next.era = "AD";
+			next.era = "CE";
 			next.circa = false;
 		}
 
@@ -104,7 +104,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 	};
 
 	const handleEraChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		save({ ...value, era: e.target.value as "AD" | "BC" });
+		save({ ...value, era: e.target.value as "CE" | "BCE" });
 	};
 
 	const handleCircaChange = (newValue: boolean) => {
@@ -164,13 +164,13 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 					<FormLabel htmlFor="era">Era</FormLabel>
 					<select
 						id="era"
-						value={era ?? "AD"}
+						value={era ?? "CE"}
 						onChange={handleEraChange}
 						disabled={disabled || !hasYear}
 						className={s.select}
 					>
-						<option value="AD">A.D.</option>
-						<option value="BC">B.C.</option>
+						<option value="CE">CE</option>
+						<option value="BCE">BCE</option>
 					</select>
 				</div>
 
