@@ -1,0 +1,65 @@
+.configScreen h2 {
+  margin: 0 0 var(--spacing-m);
+}
+
+.configScreen h3 {
+  margin: var(--spacing-l) 0 var(--spacing-s);
+}
+
+.configScreen ol {
+  padding-left: var(--spacing-l);
+}
+
+.code {
+  background: var(--light-bg-color);
+  padding: var(--spacing-s) var(--spacing-m);
+  border-radius: var(--border-radius-s);
+  font-size: var(--font-size-s);
+  overflow-x: auto;
+}
+
+.row {
+  display: flex;
+  gap: var(--spacing-m);
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.label {
+  font-size: var(--font-size-s);
+  font-weight: 600;
+  color: var(--light-body-color);
+}
+
+.input {
+  padding: var(--spacing-xs) var(--spacing-s);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-s);
+  font-size: var(--font-size-m);
+  width: 100px;
+}
+
+.select {
+  padding: var(--spacing-xs) var(--spacing-s);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius-s);
+  font-size: var(--font-size-m);
+}
+
+.select:disabled,
+.input:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.fieldCheckbox {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding-bottom: var(--spacing-xs);
+}
