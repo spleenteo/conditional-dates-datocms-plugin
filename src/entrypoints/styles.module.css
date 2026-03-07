@@ -21,45 +21,17 @@
 .row {
   display: flex;
   gap: var(--spacing-m);
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .field {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
+  min-width: 150px;
 }
 
-.label {
-  font-size: var(--font-size-s);
-  font-weight: 600;
-  color: var(--light-body-color);
+.fieldSmall {
+  min-width: 100px;
 }
 
-.input {
-  padding: var(--spacing-xs) var(--spacing-s);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-s);
-  font-size: var(--font-size-m);
-  width: 100px;
-}
-
-.select {
-  padding: var(--spacing-xs) var(--spacing-s);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius-s);
-  font-size: var(--font-size-m);
-}
-
-.select:disabled,
-.input:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.fieldCheckbox {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-xs);
-  padding-bottom: var(--spacing-xs);
+.fieldCirca {
+  min-width: 70px;
 }

@@ -1,5 +1,5 @@
 import { type RenderFieldExtensionCtx } from "datocms-plugin-sdk";
-import { Canvas } from "datocms-react-ui";
+import { Canvas, FormLabel, TextInput, SelectInput, SwitchInput } from "datocms-react-ui";
 import { get } from "../utils/get";
 import { getDaysInMonth } from "../utils/getDaysInMonth";
 import s from "./styles.module.css";
@@ -16,18 +16,40 @@ type Props = {
 	ctx: RenderFieldExtensionCtx;
 };
 
-const MONTHS = [
-	"January", "February", "March", "April", "May", "June",
-	"July", "August", "September", "October", "November", "December",
+type Option = { label: string; value: string };
+
+const MONTH_OPTIONS: Option[] = [
+	{ label: "January", value: "1" },
+	{ label: "February", value: "2" },
+	{ label: "March", value: "3" },
+	{ label: "April", value: "4" },
+	{ label: "May", value: "5" },
+	{ label: "June", value: "6" },
+	{ label: "July", value: "7" },
+	{ label: "August", value: "8" },
+	{ label: "September", value: "9" },
+	{ label: "October", value: "10" },
+	{ label: "November", value: "11" },
+	{ label: "December", value: "12" },
 ];
 
+const ERA_OPTIONS: Option[] = [
+	{ label: "A.D.", value: "AD" },
+	{ label: "B.C.", value: "BC" },
+];
+
+const EMPTY_VALUE: DateValue = {
+	year: null,
+	month: null,
+	day: null,
+	era: null,
+	circa: null,
+};
+
 export default function ConditionalDateEditor({ ctx }: Props) {
-	const value = get(ctx.formValues, ctx.fieldPath) as DateValue | null;
-	const year = value?.year ?? null;
-	const month = value?.month ?? null;
-	const day = value?.day ?? null;
-	const era = value?.era ?? null;
-	const circa = value?.circa ?? null;
+	const raw = get(ctx.formValues, ctx.fieldPath) as DateValue | null;
+	const value = raw ?? EMPTY_VALUE;
+	const { year, month, day, era, circa } = value;
 
 	const hasYear = year !== null;
 	const hasMonth = month !== null;
@@ -35,153 +57,138 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 
 	const maxDays = hasYear && hasMonth ? getDaysInMonth(month, year) : 31;
 
-	function update(patch: Partial<DateValue>) {
-		const next = { ...value, ...patch };
+	const dayOptions: Option[] = Array.from({ length: maxDays }, (_, i) => ({
+		label: String(i + 1),
+		value: String(i + 1),
+	}));
 
-		// If everything is null, store null
+	function save(next: DateValue) {
 		if (next.year == null && next.month == null && next.day == null && next.era == null && next.circa == null) {
 			ctx.setFieldValue(ctx.fieldPath, null);
 			return;
 		}
-
 		ctx.setFieldValue(ctx.fieldPath, next);
 	}
 
-	const handleYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const raw = e.target.value;
-
-		if (raw === "") {
-			// Cascading clear: year cleared → clear everything
-			ctx.setFieldValue(ctx.fieldPath, null);
+	const handleYearChange = (newValue: string) => {
+		if (newValue === "") {
+			save(EMPTY_VALUE);
 			return;
 		}
 
-		const parsed = parseInt(raw, 10);
+		const parsed = parseInt(newValue, 10);
 		if (isNaN(parsed) || parsed < 1) return;
 
-		const patch: Partial<DateValue> = { year: parsed };
+		const next = { ...value, year: parsed };
 
-		// Set defaults for era and circa when year is first entered
 		if (!hasYear) {
-			patch.era = "AD";
-			patch.circa = false;
+			next.era = "AD";
+			next.circa = false;
 		}
 
-		// Auto-clear day if it exceeds new max for the current month
 		if (month !== null && day !== null) {
 			const newMax = getDaysInMonth(month, parsed);
-			if (day > newMax) {
-				patch.day = null;
-			}
+			if (day > newMax) next.day = null;
 		}
 
-		update(patch);
+		save(next);
 	};
 
-	const handleMonthChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const raw = e.target.value;
-
-		if (raw === "") {
-			// Cascading clear: month cleared → clear day
-			update({ month: null, day: null });
+	const handleMonthChange = (option: Option | null) => {
+		if (!option) {
+			save({ ...value, month: null, day: null });
 			return;
 		}
 
-		const newMonth = parseInt(raw, 10);
-		const patch: Partial<DateValue> = { month: newMonth };
+		const newMonth = parseInt(option.value, 10);
+		const next = { ...value, month: newMonth };
 
-		// Auto-clear day if it exceeds new max
 		if (day !== null && year !== null) {
 			const newMax = getDaysInMonth(newMonth, year);
-			if (day > newMax) {
-				patch.day = null;
-			}
+			if (day > newMax) next.day = null;
 		}
 
-		update(patch);
+		save(next);
 	};
 
-	const handleDayChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const raw = e.target.value;
-		update({ day: raw === "" ? null : parseInt(raw, 10) });
+	const handleDayChange = (option: Option | null) => {
+		save({ ...value, day: option ? parseInt(option.value, 10) : null });
 	};
 
-	const handleEraChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		update({ era: e.target.value as "AD" | "BC" });
+	const handleEraChange = (option: Option | null) => {
+		if (option) {
+			save({ ...value, era: option.value as "AD" | "BC" });
+		}
 	};
 
-	const handleCircaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		update({ circa: e.target.checked });
+	const handleCircaChange = (newValue: boolean) => {
+		save({ ...value, circa: newValue });
 	};
 
 	return (
 		<Canvas ctx={ctx}>
 			<div className={s.row}>
-				<label className={s.field}>
-					<span className={s.label}>Year</span>
-					<input
+				<div className={s.field}>
+					<FormLabel htmlFor="year">Year</FormLabel>
+					<TextInput
+						id="year"
+						name="year"
 						type="number"
 						min={1}
-						value={year ?? ""}
+						value={year != null ? String(year) : ""}
 						onChange={handleYearChange}
 						placeholder="Year"
-						className={s.input}
 						disabled={disabled}
 					/>
-				</label>
+				</div>
 
-				<label className={s.field}>
-					<span className={s.label}>Month</span>
-					<select
-						value={month ?? ""}
+				<div className={s.field}>
+					<FormLabel htmlFor="month">Month</FormLabel>
+					<SelectInput
+						id="month"
+						value={month != null ? MONTH_OPTIONS.find((o) => o.value === String(month)) ?? null : null}
 						onChange={handleMonthChange}
-						disabled={disabled || !hasYear}
-						className={s.select}
-					>
-						<option value="">—</option>
-						{MONTHS.map((name, i) => (
-							<option key={i + 1} value={i + 1}>{name}</option>
-						))}
-					</select>
-				</label>
+						options={MONTH_OPTIONS}
+						isDisabled={disabled || !hasYear}
+						isClearable
+						placeholder="—"
+					/>
+				</div>
 
-				<label className={s.field}>
-					<span className={s.label}>Day</span>
-					<select
-						value={day ?? ""}
+				<div className={s.fieldSmall}>
+					<FormLabel htmlFor="day">Day</FormLabel>
+					<SelectInput
+						id="day"
+						value={day != null ? dayOptions.find((o) => o.value === String(day)) ?? null : null}
 						onChange={handleDayChange}
-						disabled={disabled || !hasMonth}
-						className={s.select}
-					>
-						<option value="">—</option>
-						{Array.from({ length: maxDays }, (_, i) => (
-							<option key={i + 1} value={i + 1}>{i + 1}</option>
-						))}
-					</select>
-				</label>
+						options={dayOptions}
+						isDisabled={disabled || !hasMonth}
+						isClearable
+						placeholder="—"
+					/>
+				</div>
 
-				<label className={s.field}>
-					<span className={s.label}>Era</span>
-					<select
-						value={era ?? "AD"}
+				<div className={s.fieldSmall}>
+					<FormLabel htmlFor="era">Era</FormLabel>
+					<SelectInput
+						id="era"
+						value={era != null ? ERA_OPTIONS.find((o) => o.value === era) ?? ERA_OPTIONS[0] : ERA_OPTIONS[0]}
 						onChange={handleEraChange}
-						disabled={disabled || !hasYear}
-						className={s.select}
-					>
-						<option value="AD">A.D.</option>
-						<option value="BC">B.C.</option>
-					</select>
-				</label>
+						options={ERA_OPTIONS}
+						isDisabled={disabled || !hasYear}
+						placeholder="—"
+					/>
+				</div>
 
-				<label className={s.fieldCheckbox}>
-					<input
-						type="checkbox"
-						checked={circa ?? false}
+				<div className={s.fieldCirca}>
+					<FormLabel htmlFor="circa">Circa</FormLabel>
+					<SwitchInput
+						name="circa"
+						value={circa ?? false}
 						onChange={handleCircaChange}
 						disabled={disabled || !hasYear}
 					/>
-					<span className={s.label}>Circa</span>
-				</label>
+				</div>
 			</div>
 		</Canvas>
 	);
