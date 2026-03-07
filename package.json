@@ -1,6 +1,6 @@
 {
-  "name": "datocms-plugin-condates",
-  "description": "AAllow editors to enter historical/partial dates where year, month, and/or day may be unknown",
+  "name": "conditional-date-datcms-plugin",
+  "description": "Allow editors to enter historical/partial dates where year, month, and/or day may be unknown",
   "homepage": "https://github.com/spleenteo/conditional-dates-datocms-plugin",
   "private": false,
   "version": "0.1.0",
@@ -11,8 +11,8 @@
   ],
   "datoCmsPlugin": {
     "title": "condates",
-    "coverImage": "docs/cover-1200x800.png",
-    "previewImage": "docs/preview.mp4",
+    "coverImage": "docs/cover.png",
+    "previewImage": "docs/demo.mp4",
     "entryPoint": "dist/index.html",
     "permissions": []
   },
