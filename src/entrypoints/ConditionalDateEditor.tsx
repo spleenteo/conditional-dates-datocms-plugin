@@ -46,9 +46,17 @@ const EMPTY_VALUE: DateValue = {
 	circa: null,
 };
 
+function readValue(ctx: RenderFieldExtensionCtx): DateValue | null {
+	const raw = get(ctx.formValues, ctx.fieldPath);
+	if (raw == null) return null;
+	if (typeof raw === "string") {
+		try { return JSON.parse(raw); } catch { return null; }
+	}
+	return raw as DateValue;
+}
+
 export default function ConditionalDateEditor({ ctx }: Props) {
-	const raw = get(ctx.formValues, ctx.fieldPath) as DateValue | null;
-	const value = raw ?? EMPTY_VALUE;
+	const value = readValue(ctx) ?? EMPTY_VALUE;
 	const { year, month, day, era, circa } = value;
 
 	const hasYear = year !== null;
@@ -67,7 +75,7 @@ export default function ConditionalDateEditor({ ctx }: Props) {
 			ctx.setFieldValue(ctx.fieldPath, null);
 			return;
 		}
-		ctx.setFieldValue(ctx.fieldPath, next);
+		ctx.setFieldValue(ctx.fieldPath, JSON.stringify(next));
 	}
 
 	const handleYearChange = (newValue: string) => {
