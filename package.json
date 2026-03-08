@@ -1,5 +1,5 @@
 {
-  "name": "conditional-date-datcms-plugin",
+  "name": "datocms-plugin-conditional-dates",
   "description": "Allow editors to enter historical/partial dates where year, month, and/or day may be unknown",
   "homepage": "https://github.com/spleenteo/conditional-dates-datocms-plugin",
   "private": false,
